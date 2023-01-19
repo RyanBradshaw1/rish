@@ -11,6 +11,11 @@ int main()
     rectangle.setOrigin(rectangle.getSize().x / 2,
                         rectangle.getSize().y / 2);
 
+
+    sf::Texture tilemapTexture;
+    tilemapTexture.loadFromFile("tilemap.png");
+    sf::Sprite tilemap(tilemapTexture);
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -22,6 +27,7 @@ int main()
 
         window.clear();
         // Draw here
+        window.draw(tilemap);
         window.draw(rectangle);
 
         window.display();
