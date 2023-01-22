@@ -1,30 +1,9 @@
-
-#include <SFML/Graphics.hpp>
+#include "Game.h"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "RISH");
+    Game game;
+    game.run();
 
-
-    sf::Texture tilemapTexture;
-    tilemapTexture.loadFromFile("tilemap.png");
-    sf::Sprite tilemap(tilemapTexture);
-    tilemap.setScale(sf::Vector2f(3.8, 3.8));
-
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-
-        window.draw(tilemap);
-
-        window.display();
-    }
+    return 0;
 }
