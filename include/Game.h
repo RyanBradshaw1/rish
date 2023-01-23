@@ -17,6 +17,8 @@ class Game
         sf::RenderWindow _window;
         sf::Texture tilemapTexture;
         sf::Sprite tilemap;
+        sf::Font font;
+        sf::Text text;
 };
 
 #endif // GAME_H

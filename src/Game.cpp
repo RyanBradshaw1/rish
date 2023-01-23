@@ -1,12 +1,24 @@
 #include "Game.h"
 #include <SFML/Graphics.hpp>
 
-// Initialize window and player
+// Initialize window, texture, and font
 Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), tilemap()
 {
-    tilemapTexture.loadFromFile("tilemap.png");
+    if (!tilemapTexture.loadFromFile("tilemap.png"))
+    {
+        throw std::runtime_error("Unable to load texture");
+    }
     tilemap.setTexture(tilemapTexture);
     tilemap.setPosition(sf::Vector2f(0, 0));
+    tilemap.setScale(sf::Vector2f(2.5, 2.5));
+
+    if (!font.loadFromFile("font.ttf"))
+    {
+        throw std::runtime_error("Unable to load font");
+    }
+    text.setFont(font);
+    text.setString("RISH");
+    text.setPosition(sf::Vector2f(555, 0));
 }
 
 // Hides main game loop
@@ -76,5 +88,6 @@ void Game::render()
 {
     _window.clear();
     _window.draw(tilemap);
+    _window.draw(text);
     _window.display();
 }
