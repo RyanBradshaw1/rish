@@ -1,13 +1,12 @@
 #include "Game.h"
+#include <SFML/Graphics.hpp>
 
 // Initialize window and player
-Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), _player(150), _player2()
+Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), tilemap()
 {
-    _player.setFillColor(sf::Color::Blue);
-    _player.setPosition(100, 20);
-    _player2.setFillColor(sf::Color::Red);
-    _player2.setSize(sf::Vector2f(100, 50));
-    _player2.setPosition(sf::Vector2f(5, 400));
+    tilemapTexture.loadFromFile("tilemap.png");
+    tilemap.setTexture(tilemapTexture);
+    tilemap.setPosition(sf::Vector2f(0, 0));
 }
 
 // Hides main game loop
@@ -21,19 +20,50 @@ void Game::run()
     }
 }
 
-// Handle user input
+//Handle user input
 void Game::processEvents()
 {
     sf::Event event;
-    while(_window.pollEvent(event))
+    while (_window.pollEvent(event))
     {
-        if ((event.type == sf::Event::Closed)
-        or ((event.type == sf::Event::KeyPressed) and (event.key.code == sf::Keyboard::Escape)))
+        if (event.type == sf::Event::Closed)
         {
             _window.close();
         }
+        else if (event.type == sf::Event::KeyPressed)
+        {
+            if (event.key.code == sf::Keyboard::Escape)
+            {
+                _window.close();
+            }
+            else
+            {
+                float changeX = 0.0f;
+                float changeY = 0.0f;
+
+                if (event.key.code == sf::Keyboard::Up)
+                {
+                    changeY = -5.0f;
+                }
+                else if (event.key.code == sf::Keyboard::Down)
+                {
+                    changeY = 5.0f;
+                }
+                else if (event.key.code == sf::Keyboard::Left)
+                {
+                    changeX = -5.0f;
+                }
+                else if (event.key.code == sf::Keyboard::Right)
+                {
+                    changeX = 5.0f;
+                }
+
+                tilemap.move(sf::Vector2f(changeX, changeY));
+            }
+        }
     }
 }
+
 
 // Updates game logic
 void Game::update()
@@ -45,7 +75,6 @@ void Game::update()
 void Game::render()
 {
     _window.clear();
-    _window.draw(_player);
-    _window.draw(_player2);
+    _window.draw(tilemap);
     _window.display();
 }

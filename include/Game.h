@@ -15,8 +15,8 @@ class Game
         void render();
 
         sf::RenderWindow _window;
-        sf::CircleShape _player;
-        sf::RectangleShape _player2;
+        sf::Texture tilemapTexture;
+        sf::Sprite tilemap;
 };
 
 #endif // GAME_H
