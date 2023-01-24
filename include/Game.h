@@ -19,6 +19,8 @@ class Game
         sf::Sprite tilemap;
         sf::Font font;
         sf::Text text;
+        sf::VertexArray mapVerts;
+        sf::View view;
 };
 
 #endif // GAME_H
