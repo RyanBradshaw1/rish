@@ -14,8 +14,6 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
         throw std::runtime_error("Unable to load font");
     }
 
-
-
     // Set size of tile map
     int mapHeight = 10;
     int mapWidth = 10;
@@ -82,6 +80,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     // select hero from tilemapTexture
     hero.setTexture(tilemapTexture);
     hero.setTextureRect(sf::IntRect(0, 7 * tileHeight, tileWidth, tileHeight));
+
     // set position to draw hero
     int heroColumn = 5;
     int heroRow = 5;
@@ -89,7 +88,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
 
     // set font
     text.setFont(font);
-    //text.setString(heroColumn);
+    text.setString("RISH");
     text.setScale(sf::Vector2f(.5, .5));
     text.setPosition(sf::Vector2f(180, 0));
 
