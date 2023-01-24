@@ -2,27 +2,19 @@
 #include <SFML/Graphics.hpp>
 
 // Initialize window, texture, and font
-Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), tilemap(), view(sf::FloatRect(0, 0, 220, 180))
+Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::FloatRect(0, 0, 220, 180))
 {
-    // Load texture and set sprite
+    // Load texture and font
     if (!tilemapTexture.loadFromFile("tilemap.png"))
     {
         throw std::runtime_error("Unable to load texture");
     }
-    tilemap.setTexture(tilemapTexture);
-    //tilemap.setPosition(sf::Vector2f(0, 400));
-    //tilemap.setScale(sf::Vector2f(2.5, 2.5));
-
-
-    // Load and set font
     if (!font.loadFromFile("font.ttf"))
     {
         throw std::runtime_error("Unable to load font");
     }
-    text.setFont(font);
-    text.setString("RISH");
-    text.setScale(sf::Vector2f(.5, .5));
-    text.setPosition(sf::Vector2f(180, 0));
+
+
 
     // Set size of tile map
     int mapHeight = 10;
@@ -87,6 +79,20 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), tilemap(), view(sf::Fl
         quad[2].texCoords = sf::Vector2f(rightU, bottomV);
         quad[3].texCoords = sf::Vector2f(leftU, bottomV);
     }
+    // select hero from tilemapTexture
+    hero.setTexture(tilemapTexture);
+    hero.setTextureRect(sf::IntRect(0, 7 * tileHeight, tileWidth, tileHeight));
+    // set position to draw hero
+    int heroColumn = 5;
+    int heroRow = 5;
+    hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
+
+    // set font
+    text.setFont(font);
+    //text.setString(heroColumn);
+    text.setScale(sf::Vector2f(.5, .5));
+    text.setPosition(sf::Vector2f(180, 0));
+
 }
 
 // Hides main game loop
@@ -123,22 +129,22 @@ void Game::processEvents()
 
                 if (event.key.code == sf::Keyboard::Up)
                 {
-                    changeY = -5.0f;
+                    changeY = -16.0f;
                 }
                 else if (event.key.code == sf::Keyboard::Down)
                 {
-                    changeY = 5.0f;
+                    changeY = 16.0f;
                 }
                 else if (event.key.code == sf::Keyboard::Left)
                 {
-                    changeX = -5.0f;
+                    changeX = -16.0f;
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    changeX = 5.0f;
+                    changeX = 16.0f;
                 }
 
-                tilemap.move(sf::Vector2f(changeX, changeY));
+                hero.move(sf::Vector2f(changeX, changeY));
             }
         }
     }
@@ -155,9 +161,9 @@ void Game::update()
 void Game::render()
 {
     _window.clear();
-    //_window.draw(tilemap);
     _window.setView(view);
     _window.draw(text);
     _window.draw(mapVerts, &tilemapTexture);
+    _window.draw(hero);
     _window.display();
 }

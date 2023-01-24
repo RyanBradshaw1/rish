@@ -16,7 +16,7 @@ class Game
 
         sf::RenderWindow _window;
         sf::Texture tilemapTexture;
-        sf::Sprite tilemap;
+        sf::Sprite hero;
         sf::Font font;
         sf::Text text;
         sf::VertexArray mapVerts;
