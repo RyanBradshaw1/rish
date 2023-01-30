@@ -15,8 +15,8 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     }
 
     // Set size of tile map
-    int mapHeight = 10;
-    int mapWidth = 10;
+    mapHeight = 10;
+    mapWidth = 10;
 
     // Array to represent tile map
     int map[] =
@@ -34,12 +34,12 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     };
 
     // size of each tile
-    int tileWidth = 16;
-    int tileHeight = 16;
+    tileWidth = 16;
+    tileHeight = 16;
 
     // number of tiles in texture rows and columns
-    int numTilesAcrossTexture = tilemapTexture.getSize().x / tileWidth;
-    int numTilesDownTexture = tilemapTexture.getSize().y / tileHeight;
+    numTilesAcrossTexture = tilemapTexture.getSize().x / tileWidth;
+    numTilesDownTexture = tilemapTexture.getSize().y / tileHeight;
 
     // four vertices per tile
     mapVerts.setPrimitiveType(sf::PrimitiveType::Quads);
@@ -82,8 +82,8 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     hero.setTextureRect(sf::IntRect(0, 7 * tileHeight, tileWidth, tileHeight));
 
     // set position to draw hero
-    int heroColumn = 5;
-    int heroRow = 5;
+    heroColumn = 5;
+    heroRow = 5;
     hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
 
     // set font
@@ -91,6 +91,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     text.setString("RISH");
     text.setScale(sf::Vector2f(.5, .5));
     text.setPosition(sf::Vector2f(180, 0));
+
 
 }
 
@@ -123,27 +124,41 @@ void Game::processEvents()
             }
             else
             {
-                float changeX = 0.0f;
-                float changeY = 0.0f;
+                int heroPosY = heroRow;
+                int heroPosX = heroColumn;
 
                 if (event.key.code == sf::Keyboard::Up)
                 {
-                    changeY = -16.0f;
+                    if (heroPosY > 1)
+                    {
+                        heroPosY = heroPosY - 1;
+                    }
                 }
                 else if (event.key.code == sf::Keyboard::Down)
                 {
-                    changeY = 16.0f;
+                    if (heroPosY < mapHeight - 2)
+                    {
+                        heroPosY = heroPosY + 1;
+                    }
                 }
                 else if (event.key.code == sf::Keyboard::Left)
                 {
-                    changeX = -16.0f;
+                    if (heroPosX > 1)
+                    {
+                        heroPosX = heroPosX - 1;
+                    }
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    changeX = 16.0f;
+                    if (heroPosX < mapWidth - 2)
+                    {
+                        heroPosX = heroPosX + 1;
+                    }
                 }
 
-                hero.move(sf::Vector2f(changeX, changeY));
+                heroColumn = heroPosX;
+                heroRow = heroPosY;
+                hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
             }
         }
     }

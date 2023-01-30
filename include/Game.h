@@ -21,6 +21,14 @@ class Game
         sf::Text text;
         sf::VertexArray mapVerts;
         sf::View view;
+        sf::Int16 heroColumn;
+        sf::Int16 heroRow;
+        sf::Int16 mapHeight;
+        sf::Int16 mapWidth;
+        sf::Int16 tileHeight;
+        sf::Int16 tileWidth;
+        sf::Int16 numTilesAcrossTexture;
+        sf::Int16 numTilesDownTexture;
 };
 
 #endif // GAME_H
