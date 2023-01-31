@@ -33,6 +33,7 @@ class Game
         sf::Int16 numTilesAcrossTexture;
         sf::Int16 numTilesDownTexture;
         sf::Int16 heroHealth;
+        sf::Int16 enemyHealth;
 };
 
 #endif // GAME_H

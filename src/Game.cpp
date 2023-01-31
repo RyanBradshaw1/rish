@@ -91,9 +91,10 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(
     heroRow = 5;
     hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
 
-    // set position to draw enemy
-    enemyColumn = 4;
-    enemyRow = 2;
+    // set enemy health and position to draw enemy
+    enemyHealth = 1;
+    enemyColumn = 5;
+    enemyRow = 3;
     enemy.setPosition(sf::Vector2f(tileWidth * enemyColumn, tileHeight * enemyRow));
 
     // set font
@@ -132,16 +133,35 @@ void Game::processEvents()
             }
             else
             {
+                // hero position
                 int heroPosY = heroRow;
                 int heroPosX = heroColumn;
 
+                // enemy position
+                int enemyPosY = enemyRow;
+                int enemyPosX = enemyColumn;
+
+                // tile ID for hero and enemy
+                int heroTileId = heroPosX + (heroPosY * mapWidth);
+                int enemyTileId = enemyPosX + (enemyPosY * mapWidth);
+
+                // attack key
+                if (event.key.code == sf::Keyboard::Space)
+                {
+                    if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) )
+                    {
+                        enemyHealth = enemyHealth - 1;
+                    }
+                }
+
+                // movement keys
                 if (event.key.code == sf::Keyboard::Up)
                 {
                     if (heroPosY > 1)
                     {
-                        if (heroPosX + (heroPosY * mapWidth) != 28)
+                        if (heroTileId != 28)
                         {
-                        heroPosY = heroPosY - 1;
+                            heroPosY = heroPosY - 1;
                         }
                     }
                 }
@@ -156,7 +176,7 @@ void Game::processEvents()
                 {
                     if (heroPosX > 1)
                     {
-                        if ((heroPosX + (heroPosY * mapWidth) !=44) && (heroPosX + (heroPosY * mapWidth) !=34) && (heroPosX + (heroPosY * mapWidth) !=24) && (heroPosX + (heroPosY * mapWidth) !=14))
+                        if ((heroTileId !=44) && (heroTileId !=34) && (heroTileId !=24) && (heroTileId !=14))
                         {
                         heroPosX = heroPosX - 1;
                         }
@@ -166,17 +186,19 @@ void Game::processEvents()
                 {
                     if (heroPosX < mapWidth - 2)
                     {
-                        if ((heroPosX + (heroPosY * mapWidth) !=43) && (heroPosX + (heroPosY * mapWidth) !=33) && (heroPosX + (heroPosY * mapWidth) !=23) && (heroPosX + (heroPosY * mapWidth) !=13) && (heroPosX + (heroPosY * mapWidth) !=17))
+                        if ((heroTileId !=43) && (heroTileId !=33) && (heroTileId !=23) && (heroTileId !=13) && (heroTileId !=17))
                         {
                         heroPosX = heroPosX + 1;
                         }
                     }
                 }
+                // set hero's new position
                 heroColumn = heroPosX;
                 heroRow = heroPosY;
                 hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
 
-                if ((heroColumn == enemyColumn) && (heroRow == enemyRow))
+                // hero takes damage from enemy
+                if ((heroColumn == enemyColumn) && (heroRow == enemyRow) && (enemyHealth > 0))
                 {
                     heroHealth = heroHealth - 1;
                 }
@@ -203,6 +225,9 @@ void Game::render()
     {
         _window.draw(hero);
     }
+    if (enemyHealth > 0)
+    {
     _window.draw(enemy);
+    }
     _window.display();
 }
