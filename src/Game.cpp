@@ -91,8 +91,6 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     text.setString("RISH");
     text.setScale(sf::Vector2f(.5, .5));
     text.setPosition(sf::Vector2f(180, 0));
-
-
 }
 
 // Hides main game loop
@@ -131,7 +129,10 @@ void Game::processEvents()
                 {
                     if (heroPosY > 1)
                     {
+                        if (heroPosX + (heroPosY * mapWidth) != 28)
+                        {
                         heroPosY = heroPosY - 1;
+                        }
                     }
                 }
                 else if (event.key.code == sf::Keyboard::Down)
@@ -145,17 +146,22 @@ void Game::processEvents()
                 {
                     if (heroPosX > 1)
                     {
+                        if ((heroPosX + (heroPosY * mapWidth) !=44) && (heroPosX + (heroPosY * mapWidth) !=34) && (heroPosX + (heroPosY * mapWidth) !=24) && (heroPosX + (heroPosY * mapWidth) !=14))
+                        {
                         heroPosX = heroPosX - 1;
+                        }
                     }
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
                     if (heroPosX < mapWidth - 2)
                     {
+                        if ((heroPosX + (heroPosY * mapWidth) !=43) && (heroPosX + (heroPosY * mapWidth) !=33) && (heroPosX + (heroPosY * mapWidth) !=23) && (heroPosX + (heroPosY * mapWidth) !=13) && (heroPosX + (heroPosY * mapWidth) !=17))
+                        {
                         heroPosX = heroPosX + 1;
+                        }
                     }
                 }
-
                 heroColumn = heroPosX;
                 heroRow = heroPosY;
                 hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
