@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 // Initialize window, texture, and font
-Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::FloatRect(0, 0, 220, 180))
+Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(sf::FloatRect(0, 0, 260, 160))
 {
     // Load texture and font
     if (!tilemapTexture.loadFromFile("tilemap.png"))
@@ -81,10 +81,20 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), view(sf::Float
     hero.setTexture(tilemapTexture);
     hero.setTextureRect(sf::IntRect(0, 7 * tileHeight, tileWidth, tileHeight));
 
-    // set position to draw hero
+    // select enemy from tilemapTexture
+    enemy.setTexture(tilemapTexture);
+    enemy.setTextureRect(sf::IntRect(4 * tileWidth, 10 * tileHeight, tileWidth, tileHeight));
+
+    // set hero health and position to draw hero
+    heroHealth = 2;
     heroColumn = 5;
     heroRow = 5;
     hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
+
+    // set position to draw enemy
+    enemyColumn = 4;
+    enemyRow = 2;
+    enemy.setPosition(sf::Vector2f(tileWidth * enemyColumn, tileHeight * enemyRow));
 
     // set font
     text.setFont(font);
@@ -165,6 +175,11 @@ void Game::processEvents()
                 heroColumn = heroPosX;
                 heroRow = heroPosY;
                 hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
+
+                if ((heroColumn == enemyColumn) && (heroRow == enemyRow))
+                {
+                    heroHealth = heroHealth - 1;
+                }
             }
         }
     }
@@ -184,6 +199,10 @@ void Game::render()
     _window.setView(view);
     _window.draw(text);
     _window.draw(mapVerts, &tilemapTexture);
-    _window.draw(hero);
+    if (heroHealth > 0)
+    {
+        _window.draw(hero);
+    }
+    _window.draw(enemy);
     _window.display();
 }
