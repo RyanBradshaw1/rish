@@ -22,26 +22,33 @@ class Game
         sf::Text text;
         sf::VertexArray mapVerts;
         sf::View view;
-        sf::Int16 heroColumn;
-        sf::Int16 heroRow;
-        sf::Int16 enemyColumn;
-        sf::Int16 enemyRow;
-        sf::Int16 mapHeight;
-        sf::Int16 mapWidth;
-        sf::Int16 tileHeight;
-        sf::Int16 tileWidth;
-        sf::Int16 numTilesAcrossTexture;
-        sf::Int16 numTilesDownTexture;
-        sf::Int16 heroHealth;
-        sf::Int16 enemyHealth;
+        sf::Int8 heroColumn;
+        sf::Int8 heroRow;
+        sf::Int8 enemyColumn;
+        sf::Int8 enemyRow;
+        sf::Int8 mapHeight;
+        sf::Int8 mapWidth;
+        sf::Int8 tileHeight;
+        sf::Int8 tileWidth;
+        sf::Int8 numTilesAcrossTexture;
+        sf::Int8 numTilesDownTexture;
+        float heroHealth;
+        float heroMaxHealth;
+        float heroMana;
+        float heroMaxMana;
+        float enemyHealth;
+        float enemyMaxHealth;
         sf::Clock clock;
         sf::Time deltaTime;
         sf::Time elapsed;
         float ratTurn = 0.0f;
         float ratTurnMeter = 1.0f;
-        bool shouldRatMove = false;
-        int ratCurrentPathIndex = 0;
-
+        sf::Int8 ratCurrentPathIndex = 0;
+        sf::RectangleShape heroHealthBar;
+        sf::RectangleShape heroManaBar;
+        sf::RectangleShape heroBackgroundBar;
+        sf::RectangleShape enemyHealthBar;
+        sf::RectangleShape enemyBackgroundBar;
 };
 
 #endif // GAME_H
