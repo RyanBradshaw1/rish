@@ -1,5 +1,6 @@
 #include "Game.h"
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 // Initialize window, texture, and font
 Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(sf::FloatRect(0, 0, 260, 160))
@@ -86,7 +87,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(
     enemy.setTextureRect(sf::IntRect(4 * tileWidth, 10 * tileHeight, tileWidth, tileHeight));
 
     // set hero health and position to draw hero
-    heroHealth = 2;
+    heroHealth = 1;
     heroColumn = 5;
     heroRow = 5;
     hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
@@ -146,7 +147,7 @@ void Game::processEvents()
                 int enemyTileId = enemyPosX + (enemyPosY * mapWidth);
 
                 // attack key
-                if (event.key.code == sf::Keyboard::Space)
+                if ((event.key.code == sf::Keyboard::Space) && (heroHealth > 0))
                 {
                     if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) )
                     {
@@ -211,7 +212,52 @@ void Game::processEvents()
 // Updates game logic
 void Game::update()
 {
+    // coordinates rat will path to
+    int ratPath[] = {
+        5, 3,
+        6, 3,
+        6, 4,
+        7, 4,
+        7, 5,
+        7, 4,
+        6, 4,
+        6, 3,
+    };
+    // location of rat
 
+    // sizeof(ratPath) = 16 elements * 4 byes in 32-bit integer = 64
+    // ratFinalPathIndex = ((16 * 4) / (2 * 4) - 1) = 7; last index in ratPath array
+    int ratFinalPathIndex = ((sizeof(ratPath) / (2 * sizeof(int))) - 1);
+
+    // return elapsed time and convert to seconds
+    float dt = clock.restart().asSeconds();
+
+    // add elapsed time to rat's "turn meter"
+    ratTurn = ratTurn + dt;
+    // determine if rat should move based on if enough time has passed
+    if (ratTurn >= ratTurnMeter)
+    {
+        ratTurn = ratTurn - ratTurnMeter;
+        //shouldRatMove = true;
+        int nextRatColumn = ratPath[ratCurrentPathIndex * 2];
+        int ratColumn = nextRatColumn;
+        int nextRatRow = ratPath[ratCurrentPathIndex * 2 + 1];
+        int ratRow = nextRatRow;
+        enemy.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow));
+        ratCurrentPathIndex = ratCurrentPathIndex + 1;
+
+        // reduce hero health if rat paths into hero
+        if ((ratColumn == heroColumn) && (ratRow == heroRow) && (enemyHealth > 0))
+        {
+            heroHealth = heroHealth - 1;
+        }
+
+        // reset path index for rat
+        if (ratCurrentPathIndex > ratFinalPathIndex)
+        {
+            ratCurrentPathIndex = 0;
+        }
+    }
 }
 
 // Render game to screen

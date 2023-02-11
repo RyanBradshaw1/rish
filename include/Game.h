@@ -34,6 +34,14 @@ class Game
         sf::Int16 numTilesDownTexture;
         sf::Int16 heroHealth;
         sf::Int16 enemyHealth;
+        sf::Clock clock;
+        sf::Time deltaTime;
+        sf::Time elapsed;
+        float ratTurn = 0.0f;
+        float ratTurnMeter = 1.0f;
+        bool shouldRatMove = false;
+        int ratCurrentPathIndex = 0;
+
 };
 
 #endif // GAME_H
