@@ -3,7 +3,7 @@
 #include <iostream>
 
 // Initialize window, texture, and font
-Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(sf::FloatRect(0, 0, 260, 160))
+Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), healthPotion(), view(sf::FloatRect(0, 0, 260, 160))
 {
     // Load texture and font
     if (!tilemapTexture.loadFromFile("tilemap.png"))
@@ -22,6 +22,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(
     // Array to represent tile map
     int map[] =
     {
+        // map tile IDs
         40, 40, 40, 40, 40, 40, 40, 40, 20, 40,
         40, 12, 0, 13, 53, 48, 49, 52, 32, 40,
         40, 0, 0, 13, 48, 48, 48, 48, 51, 40,
@@ -31,7 +32,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(
         40, 48, 48, 48, 48, 48, 42, 48, 48, 40,
         40, 48, 48, 48, 48, 48, 48, 48, 49, 40,
         40, 49, 48, 48, 49, 48, 48, 48, 48, 40,
-        40, 40, 40, 40, 40, 40, 40, 40, 40, 40
+        40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
     };
 
     // size of each tile
@@ -85,6 +86,22 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), view(
     // select enemy from tilemapTexture
     enemy.setTexture(tilemapTexture);
     enemy.setTextureRect(sf::IntRect(4 * tileWidth, 10 * tileHeight, tileWidth, tileHeight));
+
+    // select health potion from tilemapTexture
+    healthPotion.setTexture(tilemapTexture);
+    healthPotion.setTextureRect(sf::IntRect(6 * tileWidth, 9 * tileHeight, tileWidth, tileHeight));
+    healthPotionColumn = 2;
+    healthPotionRow = 2;
+
+    // select mana potion from tilemapTexture
+    manaPotion.setTexture(tilemapTexture);
+    manaPotion.setTextureRect(sf::IntRect(8 * tileWidth, 9 * tileHeight, tileWidth, tileHeight));
+    manaPotionColumn = 6;
+    manaPotionRow = 2;
+
+    //set items on map
+    healthPotion.setPosition(sf::Vector2f(tileWidth * healthPotionColumn, tileHeight * healthPotionRow));
+    manaPotion.setPosition(sf::Vector2f(tileWidth * manaPotionColumn, tileHeight * manaPotionRow));
 
     // set hero health, mana, and position to draw hero
     heroHealth = 4;
@@ -241,7 +258,7 @@ void Game::processEvents()
                 // set new position for hero and health bar
                 heroColumn = heroPosX;
                 heroRow = heroPosY;
-                hero.setPosition(sf::Vector2f(tileWidth * heroColumn, tileHeight * heroRow));
+                hero.setPosition(sf::Vector2f(tileWidth * heroPosX, tileHeight * heroPosY));
                 heroBackgroundBar.setPosition(hero.getPosition() + sf::Vector2f(0, -5));
                 heroHealthBar.setPosition(hero.getPosition() + sf::Vector2f(0, -5));
                 heroManaBar.setPosition(hero.getPosition() + sf::Vector2f(0, -3));
@@ -261,6 +278,45 @@ void Game::processEvents()
 // Updates game logic
 void Game::update()
 {
+    // hero position
+    int heroPosY = heroRow;
+    int heroPosX = heroColumn;
+
+    // health potion position
+    int healthPotionPosY = healthPotionRow;
+    int healthPotionPosX = healthPotionColumn;
+
+    // mana potion position
+    int manaPotionPosY = manaPotionRow;
+    int manaPotionPosX = manaPotionColumn;
+
+    // tile ID for hero and potions
+    int heroTileId = heroPosX + (heroPosY * mapWidth);
+    int healthPotionTileId = healthPotionPosX + (healthPotionPosY * mapWidth);
+    int manaPotionTileId = manaPotionPosX + (manaPotionPosY * mapWidth);
+
+    // if hero grabs health potion
+    if (healthPotionVisible)
+    {
+        if ((heroTileId == healthPotionTileId) && (heroHealth < heroMaxHealth))
+        {
+            healthPotionVisible = false;
+            heroHealth = heroHealth + 1;
+            heroHealthBar.setSize(sf::Vector2f((heroHealth / heroMaxHealth) * 16, 2));
+        }
+    }
+
+    // if hero grabs mana potion
+    if (manaPotionVisible)
+    {
+        if ((heroTileId == manaPotionTileId) && (heroMana < heroMaxMana))
+        {
+            manaPotionVisible = false;
+            heroMana = heroMana + 1;
+            heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
+        }
+    }
+
     // coordinates rat will path to
     int ratPath[] = {
         5, 3,
@@ -319,6 +375,17 @@ void Game::render()
     _window.setView(view);
     _window.draw(text);
     _window.draw(mapVerts, &tilemapTexture);
+
+    if (healthPotionVisible == true)
+    {
+        _window.draw(healthPotion);
+    }
+
+    if (manaPotionVisible == true)
+    {
+        _window.draw(manaPotion);
+    }
+
     if (heroHealth > 0)
     {
         _window.draw(hero);
@@ -326,6 +393,7 @@ void Game::render()
         _window.draw(heroHealthBar);
         _window.draw(heroManaBar);
     }
+
     if (enemyHealth > 0)
     {
         _window.draw(enemy);

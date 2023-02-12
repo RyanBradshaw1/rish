@@ -18,6 +18,8 @@ class Game
         sf::Texture tilemapTexture;
         sf::Sprite hero;
         sf::Sprite enemy;
+        sf::Sprite healthPotion;
+        sf::Sprite manaPotion;
         sf::Font font;
         sf::Text text;
         sf::VertexArray mapVerts;
@@ -26,6 +28,12 @@ class Game
         sf::Int8 heroRow;
         sf::Int8 enemyColumn;
         sf::Int8 enemyRow;
+        sf::Int8 healthPotionColumn;
+        sf::Int8 healthPotionRow;
+        bool healthPotionVisible = true;
+        sf::Int8 manaPotionRow;
+        sf::Int8 manaPotionColumn;
+        bool manaPotionVisible = true;
         sf::Int8 mapHeight;
         sf::Int8 mapWidth;
         sf::Int8 tileHeight;
