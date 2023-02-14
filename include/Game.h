@@ -16,14 +16,18 @@ class Game
 
         sf::RenderWindow _window;
         sf::Texture tilemapTexture;
+        // Sprites
         sf::Sprite hero;
         sf::Sprite enemy;
         sf::Sprite healthPotion;
         sf::Sprite manaPotion;
+        sf::Sprite sword;
+
         sf::Font font;
         sf::Text text;
         sf::VertexArray mapVerts;
         sf::View view;
+        // sprite locations
         sf::Int8 heroColumn;
         sf::Int8 heroRow;
         sf::Int8 enemyColumn;
@@ -34,6 +38,10 @@ class Game
         sf::Int8 manaPotionRow;
         sf::Int8 manaPotionColumn;
         bool manaPotionVisible = true;
+        sf::Int8 swordRow;
+        sf::Int8 swordColumn;
+        bool swordVisible = true;
+
         sf::Int8 mapHeight;
         sf::Int8 mapWidth;
         sf::Int8 tileHeight;

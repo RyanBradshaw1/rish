@@ -3,7 +3,7 @@
 #include <iostream>
 
 // Initialize window, texture, and font
-Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), healthPotion(), view(sf::FloatRect(0, 0, 260, 160))
+Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 0, 260, 160))
 {
     // Load texture and font
     if (!tilemapTexture.loadFromFile("tilemap.png"))
@@ -99,9 +99,16 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), hero(), enemy(), healt
     manaPotionColumn = 6;
     manaPotionRow = 2;
 
+    // select sword from tilemapTexture
+    sword.setTexture(tilemapTexture);
+    sword.setTextureRect(sf::IntRect(8 * tileWidth, 8 * tileHeight, tileWidth, tileHeight));
+    swordColumn = 1;
+    swordRow = 8;
+
     //set items on map
     healthPotion.setPosition(sf::Vector2f(tileWidth * healthPotionColumn, tileHeight * healthPotionRow));
     manaPotion.setPosition(sf::Vector2f(tileWidth * manaPotionColumn, tileHeight * manaPotionRow));
+    sword.setPosition(sf::Vector2f(tileWidth * swordColumn, tileHeight * swordRow));
 
     // set hero health, mana, and position to draw hero
     heroHealth = 4;
@@ -193,7 +200,7 @@ void Game::processEvents()
                 int enemyTileId = enemyPosX + (enemyPosY * mapWidth);
 
                 // attack key
-                if ((event.key.code == sf::Keyboard::Space) && (heroHealth > 0))
+                if ((event.key.code == sf::Keyboard::Space) && (heroHealth > 0) && (swordVisible == false))
                 {
                     // if enemy is right of hero, left of hero, above hero, or below hero
                     if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) )
@@ -290,10 +297,15 @@ void Game::update()
     int manaPotionPosY = manaPotionRow;
     int manaPotionPosX = manaPotionColumn;
 
-    // tile ID for hero and potions
+    // sword position
+    int swordPosY = swordRow;
+    int swordPosX = swordColumn;
+
+    // tile ID for hero and acquirable items
     int heroTileId = heroPosX + (heroPosY * mapWidth);
     int healthPotionTileId = healthPotionPosX + (healthPotionPosY * mapWidth);
     int manaPotionTileId = manaPotionPosX + (manaPotionPosY * mapWidth);
+    int swordTileId = swordPosX + (swordPosY * mapWidth);
 
     // if hero grabs health potion
     if (healthPotionVisible)
@@ -314,6 +326,15 @@ void Game::update()
             manaPotionVisible = false;
             heroMana = heroMana + 1;
             heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
+        }
+    }
+
+    // if her grabs sword
+    if (swordVisible)
+    {
+        if (heroTileId == swordTileId)
+        {
+            swordVisible = false;
         }
     }
 
@@ -376,6 +397,10 @@ void Game::render()
     _window.draw(text);
     _window.draw(mapVerts, &tilemapTexture);
 
+    if (swordVisible == true)
+    {
+        _window.draw(sword);
+    }
     if (healthPotionVisible == true)
     {
         _window.draw(healthPotion);
