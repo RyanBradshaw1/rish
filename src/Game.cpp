@@ -106,17 +106,34 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
     swordColumn = 1;
     swordRow = 8;
 
-    // select scrolls from tilemapTexture
+    // select scroll from tilemapTexture
     scroll.setTexture(tilemapTexture);
     scroll.setTextureRect(sf::IntRect(2 * tileWidth, 5 * tileHeight, tileWidth, tileHeight));
     scrollColumn = 8;
     scrollRow = 8;
 
+    // select treasure chests for items from tilemapTexture
+    chestHealthPotion.setTexture(tilemapTexture);
+    chestHealthPotion.setTextureRect(sf::IntRect(5 * tileWidth, 7 * tileHeight, tileWidth, tileHeight));
+
+    chestManaPotion.setTexture(tilemapTexture);
+    chestManaPotion.setTextureRect(sf::IntRect(5 * tileWidth, 7 * tileHeight, tileWidth, tileHeight));
+
+    chestSword.setTexture(tilemapTexture);
+    chestSword.setTextureRect(sf::IntRect(5 * tileWidth, 7 * tileHeight, tileWidth, tileHeight));
+
+    chestScroll.setTexture(tilemapTexture);
+    chestScroll.setTextureRect(sf::IntRect(5 * tileWidth, 7 * tileHeight, tileWidth, tileHeight));
+
     //set items on map
     healthPotion.setPosition(sf::Vector2f(tileWidth * healthPotionColumn, tileHeight * healthPotionRow));
+    chestHealthPotion.setPosition(sf::Vector2f(tileWidth * healthPotionColumn, tileHeight * healthPotionRow));
     manaPotion.setPosition(sf::Vector2f(tileWidth * manaPotionColumn, tileHeight * manaPotionRow));
+    chestManaPotion.setPosition(sf::Vector2f(tileWidth * manaPotionColumn, tileHeight * manaPotionRow));
     sword.setPosition(sf::Vector2f(tileWidth * swordColumn, tileHeight * swordRow));
+    chestSword.setPosition(sf::Vector2f(tileWidth * swordColumn, tileHeight * swordRow));
     scroll.setPosition(sf::Vector2f(tileWidth * scrollColumn, tileHeight * scrollRow));
+    chestScroll.setPosition(sf::Vector2f(tileWidth * scrollColumn, tileHeight * scrollRow));
 
     // set hero health, mana, and position to draw hero
     heroHealth = 4;
@@ -233,6 +250,33 @@ void Game::processEvents()
                     }
                 }
 
+                // interact key
+                if (event.key.code == sf::Keyboard::G)
+                {
+                    // health potion chest
+                    if ((heroTileId == 32) || (heroTileId == 12) || (heroTileId == 21) || (heroTileId == 23))
+                    {
+                        healthPotionChest = false;
+                    }
+                    // mana potion chest
+                    if ((heroTileId == 36) || (heroTileId == 16) || (heroTileId == 25) || (heroTileId == 27))
+                    {
+                        manaPotionChest = false;
+                    }
+                    // sword chest
+                    if ((heroTileId == 71) || (heroTileId == 82))
+                    {
+                        swordChest = false;
+                    }
+                    // scroll chest
+                    if ((heroTileId == 78) || (heroTileId == 87))
+                    {
+                        scrollChest = false;
+                    }
+
+                }
+
+
                 // health potion key
                 if ((event.key.code == sf::Keyboard::Q) && (heroHealth > 0) && (heroHealth < 4) && (healthPotionCount > 0))
                 {
@@ -258,41 +302,155 @@ void Game::processEvents()
                 }
 
                 // movement keys
+                // up
                 if (event.key.code == sf::Keyboard::Up)
                 {
-                    if (heroPosY > 1)
+                    didMoveUp = true;
+
+                    // check for obstacles moving up
+                    // top of map
+                    if (heroPosY == 1)
                     {
-                        if (heroTileId != 28)
-                        {
-                            heroPosY = heroPosY - 1;
-                        }
+                        didMoveUp = false;
+                    }
+                    // top right map obstacle
+                    if (heroTileId == 28)
+                    {
+                        didMoveUp = false;
+                    }
+                    // health potion chest
+                    if ((heroTileId == 32) && (healthPotionChest))
+                    {
+                        didMoveUp = false;
+                    }
+                    // mana potion chest
+                    if ((heroTileId == 36) && (manaPotionChest))
+                    {
+                        didMoveUp = false;
+                    }
+
+                    // move if obstacle check passes
+                    if (didMoveUp)
+                    {
+                        heroPosY = heroPosY - 1;
+                        didMoveUp = false;
                     }
                 }
+
+                // down
                 else if (event.key.code == sf::Keyboard::Down)
                 {
-                    if (heroPosY < mapHeight - 2)
+                    didMoveDown = true;
+
+                    // check for obstacles moving down
+                    // bottom of map
+                    if (heroPosY == 8)
+                    {
+                        didMoveDown = false;
+                    }
+                    // health potion chest
+                    if ((heroTileId == 12) && (healthPotionChest))
+                    {
+                        didMoveDown = false;
+                    }
+                    // mana potion chest
+                    if ((heroTileId == 16) && (manaPotionChest))
+                    {
+                        didMoveDown = false;
+                    }
+                    // sword chest
+                    if ((heroTileId == 71) && (swordChest))
+                    {
+                        didMoveDown = false;
+                    }
+                    // scroll chest
+                    if ((heroTileId == 78) && (scrollChest))
+                    {
+                        didMoveDown = false;
+                    }
+
+                    // move if obstacle check passes
+                    if (didMoveDown)
                     {
                         heroPosY = heroPosY + 1;
+                        didMoveDown = false;
                     }
                 }
+                // left
                 else if (event.key.code == sf::Keyboard::Left)
                 {
-                    if (heroPosX > 1)
+                    didMoveLeft = true;
+
+                    // check for obstacles moving left
+                    // left side of map
+                    if (heroPosX == 1)
                     {
-                        if ((heroTileId !=44) && (heroTileId !=34) && (heroTileId !=24) && (heroTileId !=14))
-                        {
+                        didMoveLeft = false;
+                    }
+                    // ramp obstacle
+                    if ((heroTileId == 44) || (heroTileId == 34) || (heroTileId == 24) || (heroTileId == 14))
+                    {
+                        didMoveLeft = false;
+                    }
+                    // health potion chest
+                    if ((heroTileId == 23) && (healthPotionChest))
+                    {
+                        didMoveLeft = false;
+                    }
+                    // mana potion chest
+                    if ((heroTileId == 27) && (manaPotionChest))
+                    {
+                        didMoveLeft = false;
+                    }
+                    // sword chest
+                    if ((heroTileId == 82) && (swordChest))
+                    {
+                        didMoveLeft = false;
+                    }
+
+                    // move if obstacle check passes
+                    if (didMoveLeft)
+                    {
                         heroPosX = heroPosX - 1;
-                        }
+                        didMoveLeft = false;
                     }
                 }
+                // right
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    if (heroPosX < mapWidth - 2)
+                    didMoveRight = true;
+
+                    // check for obstacles moving right
+                    // right side of map
+                    if (heroPosX == 8)
                     {
-                        if ((heroTileId !=43) && (heroTileId !=33) && (heroTileId !=23) && (heroTileId !=13) && (heroTileId !=17))
-                        {
+                        didMoveRight = false;
+                    }
+                    // ramp obstacle
+                    if ((heroTileId == 43) || (heroTileId == 33) || (heroTileId == 23) || (heroTileId == 13) || (heroTileId == 17))
+                    {
+                        didMoveRight = false;
+                    }
+                    // health potion chest
+                    if ((heroTileId == 21) && (healthPotionChest))
+                    {
+                        didMoveRight = false;
+                    }
+                    // mana potion chest
+                    if ((heroTileId == 25) && (manaPotionChest))
+                    {
+                        didMoveRight = false;
+                    }
+                    // scroll chest
+                    if ((heroTileId == 87) && (scrollChest))
+                    {
+                        didMoveRight = false;
+                    }
+
+                    if (didMoveRight)
+                    {
                         heroPosX = heroPosX + 1;
-                        }
+                        didMoveRight = false;
                     }
                 }
                 // set new position for hero and health bar
@@ -400,10 +558,10 @@ void Game::update()
     if (haveSword)
     {
         sword.setPosition(sf::Vector2f(tileWidth * 10, tileHeight * 1));
-        swordText.setFont(font);
-        swordText.setString("[Space] Melee Attack");
-        swordText.setScale(sf::Vector2f(.2, .2));
-        swordText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 1) + 8));
+        swordInventoryText.setFont(font);
+        swordInventoryText.setString("[Space] Melee Attack");
+        swordInventoryText.setScale(sf::Vector2f(.2, .2));
+        swordInventoryText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 1) + 8));
     }
 
     // if hero grabs scroll
@@ -419,10 +577,10 @@ void Game::update()
     if (haveScroll)
     {
         scroll.setPosition(sf::Vector2f(tileWidth * 10, tileHeight * 2));
-        scrollText.setFont(font);
-        scrollText.setString("[F] Magic Attack");
-        scrollText.setScale(sf::Vector2f(.2, .2));
-        scrollText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 2) + 8));
+        scrollInventoryText.setFont(font);
+        scrollInventoryText.setString("[F] Magic Attack");
+        scrollInventoryText.setScale(sf::Vector2f(.2, .2));
+        scrollInventoryText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 2) + 8));
     }
 
     // coordinates rat will path to
@@ -479,39 +637,71 @@ void Game::update()
 // Render game to screen
 void Game::render()
 {
+    // clear window and set view
     _window.clear();
     _window.setView(view);
+
+    // draw title text
     _window.draw(titleText);
+
+    // draw map
     _window.draw(mapVerts, &tilemapTexture);
 
-    // draw sword
-    if ((swordVisible == true) || (haveSword == true))
+    // draw items
+    // health potion & chest
+    if (healthPotionChest)
     {
-        _window.draw(sword);
-        _window.draw(swordText);
+        _window.draw(chestHealthPotion);
+    }
+    else
+    {
+        if ((healthPotionVisible == true) || (haveHealthPotion == true))
+            {
+                _window.draw(healthPotion);
+                _window.draw(healthPotionInventoryText);
+            }
+    }
+    // mana potion & chest
+    if (manaPotionChest)
+    {
+        _window.draw(chestManaPotion);
+    }
+    else
+    {
+        if ((manaPotionVisible) || (haveManaPotion))
+        {
+            _window.draw(manaPotion);
+            _window.draw(manaPotionInventoryText);
+        }
+    }
+    // sword & chest
+    if (swordChest)
+    {
+        _window.draw(chestSword);
+    }
+    else
+    {
+        if ((swordVisible) || (haveSword))
+        {
+            _window.draw(sword);
+            _window.draw(swordInventoryText);
+        }
+    }
+    // scroll & chest
+    if (scrollChest)
+    {
+        _window.draw(chestScroll);
+    }
+    else
+    {
+        if ((scrollVisible) || (haveScroll))
+        {
+            _window.draw(scroll);
+            _window.draw(scrollInventoryText);
+        }
     }
 
-    // draw scroll
-    if ((scrollVisible == true) || (haveScroll == true))
-    {
-        _window.draw(scroll);
-        _window.draw(scrollText);
-    }
-
-    // draw health potion
-    if ((healthPotionVisible == true) || (haveHealthPotion == true))
-    {
-        _window.draw(healthPotion);
-        _window.draw(healthPotionInventoryText);
-    }
-
-    // draw mana potion
-    if ((manaPotionVisible == true) || (haveManaPotion == true))
-    {
-        _window.draw(manaPotion);
-        _window.draw(manaPotionInventoryText);
-    }
-
+    // draw hero and health and mana bars if hero is alive
     if (heroHealth > 0)
     {
         _window.draw(hero);
@@ -520,11 +710,14 @@ void Game::render()
         _window.draw(heroManaBar);
     }
 
+    // draw enemy and health bar if enemy is alive
     if (enemyHealth > 0)
     {
         _window.draw(enemy);
         _window.draw(enemyBackgroundBar);
         _window.draw(enemyHealthBar);
     }
+
+    // display drawings
     _window.display();
 }
