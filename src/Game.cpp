@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <string>
 
 // Initialize window, texture, and font
 Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 0, 260, 160))
@@ -105,10 +106,17 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
     swordColumn = 1;
     swordRow = 8;
 
+    // select scrolls from tilemapTexture
+    scroll.setTexture(tilemapTexture);
+    scroll.setTextureRect(sf::IntRect(2 * tileWidth, 5 * tileHeight, tileWidth, tileHeight));
+    scrollColumn = 8;
+    scrollRow = 8;
+
     //set items on map
     healthPotion.setPosition(sf::Vector2f(tileWidth * healthPotionColumn, tileHeight * healthPotionRow));
     manaPotion.setPosition(sf::Vector2f(tileWidth * manaPotionColumn, tileHeight * manaPotionRow));
     sword.setPosition(sf::Vector2f(tileWidth * swordColumn, tileHeight * swordRow));
+    scroll.setPosition(sf::Vector2f(tileWidth * scrollColumn, tileHeight * scrollRow));
 
     // set hero health, mana, and position to draw hero
     heroHealth = 4;
@@ -135,8 +143,8 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
     heroManaBar.setFillColor(sf::Color{0, 0, 255, 255});
 
     // set enemy health and position to draw enemy
-    enemyHealth = 12;
-    enemyMaxHealth = 12;
+    enemyHealth = 14;
+    enemyMaxHealth = 14;
     enemyColumn = 5;
     enemyRow = 3;
     enemy.setPosition(sf::Vector2f(tileWidth * enemyColumn, tileHeight * enemyRow));
@@ -152,10 +160,10 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
     enemyHealthBar.setFillColor(sf::Color{0, 255, 0, 255});
 
     // set font
-    text.setFont(font);
-    text.setString("RISH");
-    text.setScale(sf::Vector2f(.5, .5));
-    text.setPosition(sf::Vector2f(180, 0));
+    titleText.setFont(font);
+    titleText.setString("RISH");
+    titleText.setScale(sf::Vector2f(.5, .5));
+    titleText.setPosition(sf::Vector2f(195, 0));
 }
 
 // Hides main game loop
@@ -200,10 +208,10 @@ void Game::processEvents()
                 int enemyTileId = enemyPosX + (enemyPosY * mapWidth);
 
                 // attack key
-                if ((event.key.code == sf::Keyboard::Space) && (heroHealth > 0) && (swordVisible == false))
+                if ((event.key.code == sf::Keyboard::Space) && (heroHealth > 0) && (haveSword == true))
                 {
-                    // if enemy is right of hero, left of hero, above hero, or below hero
-                    if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) )
+                    // if enemy is right of hero, left of hero, above hero, below hero, or on top of
+                    if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) || (heroTileId == enemyTileId))
                     {
                         enemyHealth = enemyHealth - 1;
                         enemyHealthBar.setSize(sf::Vector2f((enemyHealth / enemyMaxHealth) * 16, 2));
@@ -211,17 +219,42 @@ void Game::processEvents()
                 }
 
                 // magic attack key
-                if ((event.key.code == sf::Keyboard::F) && (heroHealth > 0) && (heroMana > 0))
+                if ((event.key.code == sf::Keyboard::F) && (heroHealth > 0) && (heroMana > 0) && (haveScroll == true))
                 {
-                    // if enemy is right, left, above, below, or any four corners relative to hero
+                    // if enemy is right, left, above, below, or any four corners relative to hero or on top of
                     if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) ||
-                        (heroTileId == enemyTileId + mapWidth - 1) || (heroTileId == enemyTileId + mapWidth + 1) || (heroTileId == enemyTileId - mapWidth + 1) || (heroTileId == enemyTileId - mapWidth - 1))
+                        (heroTileId == enemyTileId + mapWidth - 1) || (heroTileId == enemyTileId + mapWidth + 1) || (heroTileId == enemyTileId - mapWidth + 1) || (heroTileId == enemyTileId - mapWidth - 1) ||
+                        (heroTileId == enemyTileId))
                     {
                         enemyHealth = enemyHealth - 2;
                         heroMana = heroMana - 1;
                         heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
                         enemyHealthBar.setSize(sf::Vector2f((enemyHealth / enemyMaxHealth) * 16, 2));
                     }
+                }
+
+                // health potion key
+                if ((event.key.code == sf::Keyboard::Q) && (heroHealth > 0) && (heroHealth < 4) && (healthPotionCount > 0))
+                {
+                    healthPotionCount = healthPotionCount - 1;
+                    heroHealth = heroHealth + 2;
+                    if (heroHealth > heroMaxHealth)
+                    {
+                        heroHealth = heroMaxHealth;
+                    }
+                    heroHealthBar.setSize(sf::Vector2f((heroHealth / heroMaxHealth) * 16, 2));
+                }
+
+                // mana potion key
+                if ((event.key.code == sf::Keyboard::W) && (heroMana < 4) && (manaPotionCount > 0))
+                {
+                    manaPotionCount = manaPotionCount - 1;
+                    heroMana = heroMana + 2;
+                    if (heroMana > heroMaxMana)
+                    {
+                        heroMana = heroMaxMana;
+                    }
+                    heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
                 }
 
                 // movement keys
@@ -301,41 +334,95 @@ void Game::update()
     int swordPosY = swordRow;
     int swordPosX = swordColumn;
 
+    // scroll position
+    int scrollPosY = scrollRow;
+    int scrollPosX = scrollColumn;
+
     // tile ID for hero and acquirable items
     int heroTileId = heroPosX + (heroPosY * mapWidth);
     int healthPotionTileId = healthPotionPosX + (healthPotionPosY * mapWidth);
     int manaPotionTileId = manaPotionPosX + (manaPotionPosY * mapWidth);
     int swordTileId = swordPosX + (swordPosY * mapWidth);
+    int scrollTileId = scrollPosX + (scrollPosY * mapWidth);
 
     // if hero grabs health potion
     if (healthPotionVisible)
     {
-        if ((heroTileId == healthPotionTileId) && (heroHealth < heroMaxHealth))
+        if (heroTileId == healthPotionTileId)
         {
             healthPotionVisible = false;
-            heroHealth = heroHealth + 1;
-            heroHealthBar.setSize(sf::Vector2f((heroHealth / heroMaxHealth) * 16, 2));
+            haveHealthPotion = true;
+            healthPotionCount = healthPotionCount + 1;
         }
+    }
+    // put health potion in inventory when collected
+    if (haveHealthPotion)
+    {
+        healthPotion.setPosition(sf::Vector2f(tileWidth * 10, tileHeight * 8));
+        healthPotionInventoryText.setFont(font);
+        healthPotionInventoryText.setString("[Q] Health Potion x" + std::to_string(healthPotionCount));
+        healthPotionInventoryText.setScale(sf::Vector2f(.2, .2));
+        healthPotionInventoryText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 8) + 8));
     }
 
     // if hero grabs mana potion
     if (manaPotionVisible)
     {
-        if ((heroTileId == manaPotionTileId) && (heroMana < heroMaxMana))
+        if (heroTileId == manaPotionTileId)
         {
             manaPotionVisible = false;
-            heroMana = heroMana + 1;
-            heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
+            haveManaPotion = true;
+            manaPotionCount = manaPotionCount + 1;
+            // heroMana = heroMana + 1;
+            // heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
         }
     }
+    // put mana potion in inventory when collected
+    if (haveManaPotion)
+    {
+        manaPotion.setPosition(sf::Vector2f(tileWidth * 10, tileHeight * 9));
+        manaPotionInventoryText.setFont(font);
+        manaPotionInventoryText.setString("[W] Mana Potion x" + std::to_string(manaPotionCount));
+        manaPotionInventoryText.setScale(sf::Vector2f(.2, .2));
+        manaPotionInventoryText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 9) + 8));
+    }
 
-    // if her grabs sword
+    // if hero grabs sword
     if (swordVisible)
     {
         if (heroTileId == swordTileId)
         {
             swordVisible = false;
+            haveSword = true;
         }
+    }
+    // put sword in hero inventory
+    if (haveSword)
+    {
+        sword.setPosition(sf::Vector2f(tileWidth * 10, tileHeight * 1));
+        swordText.setFont(font);
+        swordText.setString("[Space] Melee Attack");
+        swordText.setScale(sf::Vector2f(.2, .2));
+        swordText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 1) + 8));
+    }
+
+    // if hero grabs scroll
+    if (scrollVisible)
+    {
+        if (heroTileId == scrollTileId)
+        {
+            scrollVisible = false;
+            haveScroll = true;
+        }
+    }
+    // put scroll in inventory
+    if (haveScroll)
+    {
+        scroll.setPosition(sf::Vector2f(tileWidth * 10, tileHeight * 2));
+        scrollText.setFont(font);
+        scrollText.setString("[F] Magic Attack");
+        scrollText.setScale(sf::Vector2f(.2, .2));
+        scrollText.setPosition(sf::Vector2f(tileWidth * 11, (tileHeight * 2) + 8));
     }
 
     // coordinates rat will path to
@@ -394,21 +481,35 @@ void Game::render()
 {
     _window.clear();
     _window.setView(view);
-    _window.draw(text);
+    _window.draw(titleText);
     _window.draw(mapVerts, &tilemapTexture);
 
-    if (swordVisible == true)
+    // draw sword
+    if ((swordVisible == true) || (haveSword == true))
     {
         _window.draw(sword);
-    }
-    if (healthPotionVisible == true)
-    {
-        _window.draw(healthPotion);
+        _window.draw(swordText);
     }
 
-    if (manaPotionVisible == true)
+    // draw scroll
+    if ((scrollVisible == true) || (haveScroll == true))
+    {
+        _window.draw(scroll);
+        _window.draw(scrollText);
+    }
+
+    // draw health potion
+    if ((healthPotionVisible == true) || (haveHealthPotion == true))
+    {
+        _window.draw(healthPotion);
+        _window.draw(healthPotionInventoryText);
+    }
+
+    // draw mana potion
+    if ((manaPotionVisible == true) || (haveManaPotion == true))
     {
         _window.draw(manaPotion);
+        _window.draw(manaPotionInventoryText);
     }
 
     if (heroHealth > 0)

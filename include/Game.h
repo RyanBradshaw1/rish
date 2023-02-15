@@ -22,9 +22,15 @@ class Game
         sf::Sprite healthPotion;
         sf::Sprite manaPotion;
         sf::Sprite sword;
-
+        sf::Sprite scroll;
+        // font and texts
         sf::Font font;
-        sf::Text text;
+        sf::Text titleText;
+        sf::Text swordText;
+        sf::Text scrollText;
+        sf::Text healthPotionInventoryText;
+        sf::Text manaPotionInventoryText;
+
         sf::VertexArray mapVerts;
         sf::View view;
         // sprite locations
@@ -41,6 +47,16 @@ class Game
         sf::Int8 swordRow;
         sf::Int8 swordColumn;
         bool swordVisible = true;
+        sf::Int8 scrollRow;
+        sf::Int8 scrollColumn;
+        bool scrollVisible = true;
+        // inventory
+        bool haveSword = false;
+        bool haveScroll = false;
+        bool haveHealthPotion = false;
+        sf::Int8 healthPotionCount = 0;
+        bool haveManaPotion = false;
+        sf::Int8 manaPotionCount = 0;
 
         sf::Int8 mapHeight;
         sf::Int8 mapWidth;
