@@ -21,10 +21,11 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
     mapWidth = 10;
 
     // Array to represent tile map
+
     int map[] =
     {
         // map tile IDs
-        40, 40, 40, 40, 40, 40, 40, 40, 20, 40,
+        40, 40, 40, 40, 40, 33, 40, 40, 20, 40,
         40, 12, 0, 13, 53, 48, 49, 52, 32, 40,
         40, 0, 0, 13, 48, 48, 48, 48, 51, 40,
         40, 12, 0, 13, 49, 48, 48, 48, 48, 40,
@@ -35,6 +36,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
         40, 49, 48, 48, 49, 48, 48, 48, 48, 40,
         40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
     };
+
 
     // size of each tile
     tileWidth = 16;
@@ -56,6 +58,7 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
         int y = index / mapWidth;
         // get tile id at index location in tile map
         int tileId = map[index];
+        std::cout << tileId << std::endl;
         // find correct tile column and row
         int tileU = tileId % numTilesAcrossTexture;
         int tileV = tileId / numTilesDownTexture;
@@ -80,13 +83,14 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
         quad[2].texCoords = sf::Vector2f(rightU, bottomV);
         quad[3].texCoords = sf::Vector2f(leftU, bottomV);
     }
+
     // select hero from tilemapTexture
     hero.setTexture(tilemapTexture);
     hero.setTextureRect(sf::IntRect(0, 7 * tileHeight, tileWidth, tileHeight));
 
-    // select enemy from tilemapTexture
-    enemy.setTexture(tilemapTexture);
-    enemy.setTextureRect(sf::IntRect(4 * tileWidth, 10 * tileHeight, tileWidth, tileHeight));
+    // select rat enemy from tilemapTexture
+    rat.setTexture(tilemapTexture);
+    rat.setTextureRect(sf::IntRect(4 * tileWidth, 10 * tileHeight, tileWidth, tileHeight));
 
     // select health potion from tilemapTexture
     healthPotion.setTexture(tilemapTexture);
@@ -159,22 +163,22 @@ Game::Game() : _window(sf::VideoMode(1280, 720), "RISH"), view(sf::FloatRect(0, 
     heroManaBar.setPosition(hero.getPosition() + sf::Vector2f(0, -3));
     heroManaBar.setFillColor(sf::Color{0, 0, 255, 255});
 
-    // set enemy health and position to draw enemy
-    enemyHealth = 14;
-    enemyMaxHealth = 14;
-    enemyColumn = 5;
-    enemyRow = 3;
-    enemy.setPosition(sf::Vector2f(tileWidth * enemyColumn, tileHeight * enemyRow));
+    // set rat enemy health and position to draw enemy
+    ratHealth = 14;
+    ratMaxHealth = 14;
+    ratColumn = 5;
+    ratRow = 3;
+    rat.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow));
 
     // set enemy max health bar for background
-    enemyBackgroundBar.setSize(sf::Vector2f(16, 2));
-    enemyBackgroundBar.setPosition(enemy.getPosition() + sf::Vector2f(0, -5));
-    enemyBackgroundBar.setFillColor(sf::Color{0, 0, 0, 50});
+    ratBackgroundBar.setSize(sf::Vector2f(16, 2));
+    ratBackgroundBar.setPosition(rat.getPosition() + sf::Vector2f(0, -5));
+    ratBackgroundBar.setFillColor(sf::Color{0, 0, 0, 50});
 
     // set enemy's current health bar
-    enemyHealthBar.setSize(sf::Vector2f((enemyHealth / enemyMaxHealth) * 16, 2));
-    enemyHealthBar.setPosition(enemy.getPosition() + sf::Vector2f(0, -5));
-    enemyHealthBar.setFillColor(sf::Color{0, 255, 0, 255});
+    ratHealthBar.setSize(sf::Vector2f(( ratHealth / ratMaxHealth) * 16, 2));
+    ratHealthBar.setPosition(rat.getPosition() + sf::Vector2f(0, -5));
+    ratHealthBar.setFillColor(sf::Color{0, 255, 0, 255});
 
     // set font
     titleText.setFont(font);
@@ -217,8 +221,8 @@ void Game::processEvents()
                 int heroPosX = heroColumn;
 
                 // enemy position
-                int enemyPosY = enemyRow;
-                int enemyPosX = enemyColumn;
+                int enemyPosY = ratRow;
+                int enemyPosX = ratColumn;
 
                 // tile ID for hero and enemy
                 int heroTileId = heroPosX + (heroPosY * mapWidth);
@@ -230,8 +234,12 @@ void Game::processEvents()
                     // if enemy is right of hero, left of hero, above hero, below hero, or on top of
                     if ((heroTileId == enemyTileId - 1) || (heroTileId == enemyTileId + 1) || (heroTileId == enemyTileId + mapWidth) || (heroTileId == enemyTileId - mapWidth) || (heroTileId == enemyTileId))
                     {
-                        enemyHealth = enemyHealth - 1;
-                        enemyHealthBar.setSize(sf::Vector2f((enemyHealth / enemyMaxHealth) * 16, 2));
+                        ratHealth = ratHealth - 1;
+                        ratHealthBar.setSize(sf::Vector2f((ratHealth / ratMaxHealth) * 16, 2));
+                        if (ratHealth <= 0)
+                        {
+                            isRatAlive = false;
+                        }
                     }
                 }
 
@@ -243,10 +251,14 @@ void Game::processEvents()
                         (heroTileId == enemyTileId + mapWidth - 1) || (heroTileId == enemyTileId + mapWidth + 1) || (heroTileId == enemyTileId - mapWidth + 1) || (heroTileId == enemyTileId - mapWidth - 1) ||
                         (heroTileId == enemyTileId))
                     {
-                        enemyHealth = enemyHealth - 2;
+                        ratHealth = ratHealth - 2;
                         heroMana = heroMana - 1;
                         heroManaBar.setSize(sf::Vector2f((heroMana / heroMaxMana) * 16, 2));
-                        enemyHealthBar.setSize(sf::Vector2f((enemyHealth / enemyMaxHealth) * 16, 2));
+                        ratHealthBar.setSize(sf::Vector2f((ratHealth / ratMaxHealth) * 16, 2));
+                        if (ratHealth <= 0)
+                        {
+                            isRatAlive = false;
+                        }
                     }
                 }
 
@@ -309,10 +321,30 @@ void Game::processEvents()
 
                     // check for obstacles moving up
                     // top of map
-                    if (heroPosY == 1)
+
+                    if (heroPosY == 0)
                     {
                         didMoveUp = false;
                     }
+
+
+
+                    // top of map except under door
+
+                    if ((heroTileId == 11) || (heroTileId == 12) || (heroTileId == 13) || (heroTileId == 14) || (heroTileId == 16) || (heroTileId == 17))
+                    {
+                        didMoveUp = false;
+                    }
+                    // top of map under door
+                    if (heroTileId == 15)
+                    {
+                        if (isRatAlive)
+                        {
+                            didMoveUp = false;
+                        }
+                    }
+
+
                     // top right map obstacle
                     if (heroTileId == 28)
                     {
@@ -462,7 +494,7 @@ void Game::processEvents()
                 heroManaBar.setPosition(hero.getPosition() + sf::Vector2f(0, -3));
 
                 // hero takes damage when moving over an enemy
-                if ((heroColumn == enemyColumn) && (heroRow == enemyRow) && (enemyHealth > 0) && (ratCurrentPathIndex = 2))
+                if ((heroColumn == ratColumn) && (heroRow == ratRow) && (ratHealth > 0) && (ratCurrentPathIndex = 2))
                 {
                     heroHealth = heroHealth - 1;
                     heroHealthBar.setSize(sf::Vector2f((heroHealth / heroMaxHealth) * 16, 2));
@@ -609,18 +641,16 @@ void Game::update()
     {
         ratTurn = ratTurn - ratTurnMeter;
         int nextRatColumn = ratPath[ratCurrentPathIndex * 2];
-        int ratColumn = nextRatColumn;
+        ratColumn = nextRatColumn;
         int nextRatRow = ratPath[ratCurrentPathIndex * 2 + 1];
-        int ratRow = nextRatRow;
-        enemyColumn = ratColumn;
-        enemyRow = ratRow;
-        enemy.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow));
-        enemyBackgroundBar.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow - 5));
-        enemyHealthBar.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow - 5));
+        ratRow = nextRatRow;
+        rat.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow));
+        ratBackgroundBar.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow - 5));
+        ratHealthBar.setPosition(sf::Vector2f(tileWidth * ratColumn, tileHeight * ratRow - 5));
         ratCurrentPathIndex = ratCurrentPathIndex + 1;
 
         // reduce hero health if rat paths into hero
-        if ((ratColumn == heroColumn) && (ratRow == heroRow) && (enemyHealth > 0))
+        if ((ratColumn == heroColumn) && (ratRow == heroRow) && (ratHealth > 0))
         {
             heroHealth = heroHealth - 1;
             heroHealthBar.setSize(sf::Vector2f((heroHealth / heroMaxHealth) * 16, 2));
@@ -630,6 +660,58 @@ void Game::update()
         if (ratCurrentPathIndex > ratFinalPathIndex)
         {
             ratCurrentPathIndex = 0;
+        }
+    }
+
+    // open door if rat dies
+    if (!isRatAlive)
+    {
+        int map[] =
+        {
+            // map tile IDs
+            40, 40, 40, 40, 40, 21, 40, 40, 20, 40,
+            40, 12, 0, 13, 53, 48, 49, 52, 32, 40,
+            40, 0, 0, 13, 48, 48, 48, 48, 51, 40,
+            40, 12, 0, 13, 49, 48, 48, 48, 48, 40,
+            40, 36, 37, 38, 48, 48, 48, 49, 48, 40,
+            40, 50, 51, 52, 48, 48, 48, 48, 48, 40,
+            40, 48, 48, 48, 48, 48, 42, 48, 48, 40,
+            40, 48, 48, 48, 48, 48, 48, 48, 49, 40,
+            40, 49, 48, 48, 49, 48, 48, 48, 48, 40,
+            40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+        };
+
+        for (int index = 0; index < mapWidth * mapHeight; index++)
+        {
+            // find column and row
+            int x = index % mapWidth;
+            int y = index / mapWidth;
+            // get tile id at index location in tile map
+            int tileId = map[index];
+            std::cout << tileId << std::endl;
+            // find correct tile column and row
+            int tileU = tileId % numTilesAcrossTexture;
+            int tileV = tileId / numTilesDownTexture;
+            // get pointer to current quad
+            sf::Vertex *quad = &mapVerts[4 * (x + (y * mapWidth))];
+            // set position for each vertex
+            float left = x * tileWidth;
+            float top = y * tileHeight;
+            float right = (x + 1) * tileWidth;
+            float bottom = (y + 1) * tileHeight;
+            quad[0].position = sf::Vector2f(left, top);
+            quad[1].position = sf::Vector2f(right, top);
+            quad[2].position = sf::Vector2f(right, bottom);
+            quad[3].position = sf::Vector2f(left, bottom);
+            // set texture coordinates for each vertex
+            float leftU = tileU * tileWidth;
+            float topV = tileV * tileHeight;
+            float rightU = (tileU + 1) * tileWidth;
+            float bottomV = (tileV + 1) * tileHeight;
+            quad[0].texCoords = sf::Vector2f(leftU, topV);
+            quad[1].texCoords = sf::Vector2f(rightU, topV);
+            quad[2].texCoords = sf::Vector2f(rightU, bottomV);
+            quad[3].texCoords = sf::Vector2f(leftU, bottomV);
         }
     }
 }
@@ -710,12 +792,12 @@ void Game::render()
         _window.draw(heroManaBar);
     }
 
-    // draw enemy and health bar if enemy is alive
-    if (enemyHealth > 0)
+    // draw rat enemy and health bar if enemy is alive
+    if (isRatAlive)
     {
-        _window.draw(enemy);
-        _window.draw(enemyBackgroundBar);
-        _window.draw(enemyHealthBar);
+        _window.draw(rat);
+        _window.draw(ratBackgroundBar);
+        _window.draw(ratHealthBar);
     }
 
     // display drawings

@@ -23,7 +23,7 @@ class Game
         sf::View view;
         // Sprites
         sf::Sprite hero;
-        sf::Sprite enemy;
+        sf::Sprite rat;
         sf::Sprite healthPotion;
         sf::Sprite manaPotion;
         sf::Sprite sword;
@@ -42,8 +42,9 @@ class Game
         // sprite locations
         sf::Int8 heroColumn;
         sf::Int8 heroRow;
-        sf::Int8 enemyColumn;
-        sf::Int8 enemyRow;
+        sf::Int8 ratColumn;
+        sf::Int8 ratRow;
+        bool isRatAlive = true;
         sf::Int8 healthPotionColumn;
         sf::Int8 healthPotionRow;
         sf::Int8 manaPotionRow;
@@ -86,8 +87,8 @@ class Game
         float heroMaxHealth;
         float heroMana;
         float heroMaxMana;
-        float enemyHealth;
-        float enemyMaxHealth;
+        float ratHealth;
+        float ratMaxHealth;
         // for tracking time
         sf::Clock clock;
         sf::Time deltaTime;
@@ -100,8 +101,8 @@ class Game
         sf::RectangleShape heroHealthBar;
         sf::RectangleShape heroManaBar;
         sf::RectangleShape heroBackgroundBar;
-        sf::RectangleShape enemyHealthBar;
-        sf::RectangleShape enemyBackgroundBar;
+        sf::RectangleShape ratHealthBar;
+        sf::RectangleShape ratBackgroundBar;
 };
 
 #endif // GAME_H
