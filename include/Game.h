@@ -103,6 +103,11 @@ class Game
         sf::RectangleShape heroBackgroundBar;
         sf::RectangleShape ratHealthBar;
         sf::RectangleShape ratBackgroundBar;
+        // level checks
+        bool levelOne = true;
+        bool levelOneClear = false;
+        bool levelTwo = false;
+        bool levelTwoClear = false;
 };
 
 #endif // GAME_H
